@@ -42,7 +42,7 @@ class User(AbstractBaseUser,PermissionsMixin):
     is_staff=models.BooleanField(default=False)
 
     created_at=models.DateTimeField(auto_now_add=True)
-    updated_at=models.DateTimeField(auto_created=True)
+    updated_at=models.DateTimeField(auto_now=True)
 
     groups=models.ManyToManyField(
         'auth.Group',
@@ -61,7 +61,7 @@ class User(AbstractBaseUser,PermissionsMixin):
 
     objects=UserManager()
 
-    USERNAME_FIELDS='phone'
+    USERNAME_FIELD='phone'
     REQUIRED_FIELDS=['full_name']
 
 
