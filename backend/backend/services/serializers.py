@@ -66,7 +66,7 @@ class WorkerPublicProfileSerializer(serializers.ModelSerializer):
     class Meta:
         model  = __import__('accounts.models', fromlist=['WorkerProfile']).WorkerProfile
         fields = [
-            'id', 'full_name', 'phone', 'area', 'avatar',
+            'id', 'full_name', 'phone', 'area',
             'bio', 'experience_years', 'is_verified', 'is_available',
             'avg_rating', 'total_jobs',
             'services_offered', 'availability'

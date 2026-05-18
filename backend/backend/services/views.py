@@ -38,33 +38,35 @@ class ServiceDetailView(generics.RetrieveAPIView):
     serializer_class   = ServiceSerializer
     permission_classes = [AllowAny]
 
-
 class WorkerListView(generics.ListAPIView):
-    serializer_class=WorkerPublicProfileSerializer
-    permission_classes=[AllowAny]
-    filter_backends=[DjangoFilterBackend,SearchFilter,OrderingFilter]
-    search_fields=['user__full_name','user_area']
-    ordering_fields=['avg_rating','total_jobs']
+    serializer_class   = WorkerPublicProfileSerializer
+    permission_classes = [AllowAny]
+    filter_backends    = [SearchFilter, OrderingFilter]
+    search_fields      = ['user__full_name', 'user__area']
+    ordering_fields    = ['avg_rating', 'total_jobs']
 
     def get_queryset(self):
-        queryset=WorkerProfile.objects.filter(
+       
+        queryset = WorkerProfile.objects.filter(
             is_verified=True,
-            is_availalbe=True,
+            is_available=True,
             user__is_active=True
         ).select_related('user')
 
-        area=self.request.query_params.get('area')
+       
+        area = self.request.query_params.get('area')
         if area:
-            queryset=queryset.filter(user__area__icontains=area)
+            queryset = queryset.filter(user__area__icontains=area)
 
-        service_id=self.request.query_params.get('service')
+        service_id = self.request.query_params.get('service')
         if service_id:
-            queryset=queryset.filter(
+            queryset = queryset.filter(
                 user__worker_services__service_id=service_id,
                 user__worker_services__is_active=True
             )
-            return queryset
-        
+
+       
+        return queryset
 
 class WorkerDetailView(generics.RetrieveAPIView):
         queryset           = WorkerProfile.objects.filter(is_verified=True)
