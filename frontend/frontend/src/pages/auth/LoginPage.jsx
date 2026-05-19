@@ -105,7 +105,7 @@ export default function LoginPage() {
 
         <div style={styles.header}>
           <div style={styles.logoMark}>🏠</div>
-          <h1 style={styles.title}>GharChore</h1>
+          <h1 style={styles.title}>GharKoKaam</h1>
           <p style={styles.subtitle}>Sign in to your account</p>
         </div>
 
