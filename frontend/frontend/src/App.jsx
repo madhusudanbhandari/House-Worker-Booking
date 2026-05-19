@@ -1,121 +1,84 @@
-import { useState } from 'react'
-import reactLogo from './assets/react.svg'
-import viteLogo from './assets/vite.svg'
-import heroImg from './assets/hero.png'
-import './App.css'
+import { Routes, Route, Navigate } from 'react-router-dom'
+import { useSelector } from 'react-redux'
+import { selectIsLoggedIn, selectUserRole } from './store/slices/authSlice'
+import { ProtectedRoute, RoleRoute } from './utils/ProtectedRoute'
+
+// Auth pages
+import LoginPage    from './pages/auth/LoginPage'
+import RegisterPage from './pages/auth/RegisterPage'
+
+// Customer pages
+import CustomerDashboard from './pages/customer/CustomerDashboard'
+import SearchWorkers     from './pages/customer/SearchWorkers'
+import WorkerDetail      from './pages/customer/WorkerDetail'
+import MyBookings        from './pages/customer/MyBookings'
+import BookingDetail     from './pages/customer/BookingDetail'
+
+// Worker pages
+import WorkerDashboard  from './pages/worker/WorkerDashboard'
+import WorkerBookings   from './pages/worker/WorkerBookings'
+import ManageServices   from './pages/worker/ManageServices'
+
+// Shared pages
+import HomePage    from './pages/shared/HomePage'
+import ProfilePage from './pages/shared/ProfilePage'
+import NotFound    from './pages/shared/NotFound'
 
 function App() {
-  const [count, setCount] = useState(0)
+  const isLoggedIn = useSelector(selectIsLoggedIn)
+  const role       = useSelector(selectUserRole)
 
   return (
-    <>
-      <section id="center">
-        <div className="hero">
-          <img src={heroImg} className="base" width="170" height="179" alt="" />
-          <img src={reactLogo} className="framework" alt="React logo" />
-          <img src={viteLogo} className="vite" alt="Vite logo" />
-        </div>
-        <div>
-          <h1>Get started</h1>
-          <p>
-            Edit <code>src/App.jsx</code> and save to test <code>HMR</code>
-          </p>
-        </div>
-        <button
-          type="button"
-          className="counter"
-          onClick={() => setCount((count) => count + 1)}
-        >
-          Count is {count}
-        </button>
-      </section>
+    <Routes>
+      {/* Public routes */}
+      <Route path="/"         element={<HomePage />} />
+      <Route path="/login"    element={
+        isLoggedIn
+          ? <Navigate to={`/${role}/dashboard`} replace />
+          : <LoginPage />
+      } />
+      <Route path="/register" element={
+        isLoggedIn
+          ? <Navigate to={`/${role}/dashboard`} replace />
+          : <RegisterPage />
+      } />
 
-      <div className="ticks"></div>
+      {/* Customer routes */}
+      <Route path="/customer/dashboard" element={
+        <RoleRoute role="customer"><CustomerDashboard /></RoleRoute>
+      } />
+      <Route path="/customer/search" element={
+        <RoleRoute role="customer"><SearchWorkers /></RoleRoute>
+      } />
+      <Route path="/customer/workers/:id" element={
+        <RoleRoute role="customer"><WorkerDetail /></RoleRoute>
+      } />
+      <Route path="/customer/bookings" element={
+        <RoleRoute role="customer"><MyBookings /></RoleRoute>
+      } />
+      <Route path="/customer/bookings/:id" element={
+        <RoleRoute role="customer"><BookingDetail /></RoleRoute>
+      } />
 
-      <section id="next-steps">
-        <div id="docs">
-          <svg className="icon" role="presentation" aria-hidden="true">
-            <use href="/icons.svg#documentation-icon"></use>
-          </svg>
-          <h2>Documentation</h2>
-          <p>Your questions, answered</p>
-          <ul>
-            <li>
-              <a href="https://vite.dev/" target="_blank">
-                <img className="logo" src={viteLogo} alt="" />
-                Explore Vite
-              </a>
-            </li>
-            <li>
-              <a href="https://react.dev/" target="_blank">
-                <img className="button-icon" src={reactLogo} alt="" />
-                Learn more
-              </a>
-            </li>
-          </ul>
-        </div>
-        <div id="social">
-          <svg className="icon" role="presentation" aria-hidden="true">
-            <use href="/icons.svg#social-icon"></use>
-          </svg>
-          <h2>Connect with us</h2>
-          <p>Join the Vite community</p>
-          <ul>
-            <li>
-              <a href="https://github.com/vitejs/vite" target="_blank">
-                <svg
-                  className="button-icon"
-                  role="presentation"
-                  aria-hidden="true"
-                >
-                  <use href="/icons.svg#github-icon"></use>
-                </svg>
-                GitHub
-              </a>
-            </li>
-            <li>
-              <a href="https://chat.vite.dev/" target="_blank">
-                <svg
-                  className="button-icon"
-                  role="presentation"
-                  aria-hidden="true"
-                >
-                  <use href="/icons.svg#discord-icon"></use>
-                </svg>
-                Discord
-              </a>
-            </li>
-            <li>
-              <a href="https://x.com/vite_js" target="_blank">
-                <svg
-                  className="button-icon"
-                  role="presentation"
-                  aria-hidden="true"
-                >
-                  <use href="/icons.svg#x-icon"></use>
-                </svg>
-                X.com
-              </a>
-            </li>
-            <li>
-              <a href="https://bsky.app/profile/vite.dev" target="_blank">
-                <svg
-                  className="button-icon"
-                  role="presentation"
-                  aria-hidden="true"
-                >
-                  <use href="/icons.svg#bluesky-icon"></use>
-                </svg>
-                Bluesky
-              </a>
-            </li>
-          </ul>
-        </div>
-      </section>
+      {/* Worker routes */}
+      <Route path="/worker/dashboard" element={
+        <RoleRoute role="worker"><WorkerDashboard /></RoleRoute>
+      } />
+      <Route path="/worker/bookings" element={
+        <RoleRoute role="worker"><WorkerBookings /></RoleRoute>
+      } />
+      <Route path="/worker/services" element={
+        <RoleRoute role="worker"><ManageServices /></RoleRoute>
+      } />
 
-      <div className="ticks"></div>
-      <section id="spacer"></section>
-    </>
+      {/* Shared protected routes */}
+      <Route path="/profile" element={
+        <ProtectedRoute><ProfilePage /></ProtectedRoute>
+      } />
+
+      {/* 404 */}
+      <Route path="*" element={<NotFound />} />
+    </Routes>
   )
 }
 
