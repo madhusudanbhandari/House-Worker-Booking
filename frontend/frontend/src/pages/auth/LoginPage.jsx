@@ -11,8 +11,6 @@ export default function LoginPage() {
   const location = useLocation();
   const dispatch = useDispatch();
 
-  // Where to redirect after login — default based on role
-  // If user was trying to visit a protected page, send them back there
   const from = location.state?.from?.pathname || null;
 
   // ── Form state ──────────────────────────────────────────────────────────
@@ -21,84 +19,83 @@ export default function LoginPage() {
     password: "",
   });
 
-  const [errors, setErrors] = useState({}); // field-level validation errors
+  const [errors, setErrors] = useState({});
   const [showPassword, setShowPassword] = useState(false);
 
   // ── Input handler ────────────────────────────────────────────────────────
   const handleChange = (e) => {
     const { name, value } = e.target;
     setFormData((prev) => ({ ...prev, [name]: value }));
-    // Clear the error for this field as user types
     if (errors[name]) {
       setErrors((prev) => ({ ...prev, [name]: "" }));
     }
   };
 
-  // ── Client-side validation ───────────────────────────────────────────────
+  // ── Validation ───────────────────────────────────────────────────────────
   const validate = () => {
-    const newErrors = {};
+    const e = {};
 
     if (!formData.phone.trim()) {
-      newErrors.phone = "Phone number is required.";
-    } else if (!/^\d{10}$/.test(formData.phone)) {
-      newErrors.phone = "Enter a valid 10-digit phone number.";
+      e.phone = "Phone number is required.";
+    } else if (!/^[0-9]{10}$/.test(formData.phone.trim())) {
+      // Nepal mobile numbers are 10 digits, e.g. 9811111111
+      e.phone = "Enter a valid 10-digit phone number.";
     }
 
     if (!formData.password) {
-      newErrors.password = "Password is required.";
+      e.password = "Password is required.";
     }
 
-    setErrors(newErrors);
-    return Object.keys(newErrors).length === 0; // true = valid
+    setErrors(e);
+    return Object.keys(e).length === 0;
   };
 
-  // ── React Query mutation ─────────────────────────────────────────────────
+  // ── Mutation ─────────────────────────────────────────────────────────────
   const mutation = useMutation({
     mutationFn: loginUser,
 
     onSuccess: (data) => {
-      // data = { access, refresh, user: { id, email, role, first_name, ... } }
-      dispatch(setCredentials(data)); // Save to Redux + localStorage
+      dispatch(setCredentials(data));
 
-      // Redirect based on role
       if (from) {
-        navigate(from, { replace: true }); // Go back to where they came from
+        navigate(from, { replace: true });
       } else if (data.user.role === "worker") {
         navigate("/worker/dashboard", { replace: true });
       } else if (data.user.role === "admin") {
         navigate("/admin/dashboard", { replace: true });
       } else {
-        navigate("/dashboard", { replace: true }); // customer
+        navigate("/dashboard", { replace: true });
       }
     },
 
     onError: (error) => {
-      // error.response.data contains Django's error response
-      // Django typically returns: { detail: "No active account found..." }
-      // or field errors: { email: ["..."], password: ["..."] }
       const data = error.response?.data;
 
       if (data?.detail) {
-        // Non-field error (wrong credentials)
         setErrors({ general: data.detail });
+      } else if (data?.non_field_errors) {
+        // Django REST sometimes returns this for auth failures
+        setErrors({ general: data.non_field_errors[0] });
       } else if (typeof data === "object") {
-        // Field-level errors from Django serializer
         const mapped = {};
         for (const key in data) {
           mapped[key] = Array.isArray(data[key]) ? data[key][0] : data[key];
         }
         setErrors(mapped);
       } else {
-        setErrors({ general: "Something went wrong. Please try again." });
+        setErrors({ general: "Invalid phone number or password." });
       }
     },
   });
 
-  // ── Submit handler ───────────────────────────────────────────────────────
+  // ── Submit ───────────────────────────────────────────────────────────────
   const handleSubmit = (e) => {
     e.preventDefault();
-    if (!validate()) return; // Stop if client-side validation fails
-    mutation.mutate(formData); // Fire the API call
+    if (!validate()) return;
+    mutation.mutate({
+      phone: formData.phone.trim(),
+      password: formData.password,
+    });
   };
 
   // ── Render ───────────────────────────────────────────────────────────────
@@ -106,21 +103,16 @@ export default function LoginPage() {
     <div style={styles.page}>
       <div style={styles.card}>
 
-        {/* Logo + heading */}
         <div style={styles.header}>
           <div style={styles.logoMark}>🏠</div>
           <h1 style={styles.title}>GharChore</h1>
           <p style={styles.subtitle}>Sign in to your account</p>
         </div>
 
-        {/* General error banner (wrong credentials etc.) */}
         {errors.general && (
-          <div style={styles.errorBanner}>
-            ⚠ {errors.general}
-          </div>
+          <div style={styles.errorBanner}>⚠ {errors.general}</div>
         )}
 
-        {/* Login form */}
         <form onSubmit={handleSubmit} noValidate>
 
           {/* Phone field */}
@@ -134,13 +126,14 @@ export default function LoginPage() {
               autoFocus
               value={formData.phone}
               onChange={handleChange}
-              placeholder="10-digit phone number"
+              placeholder="9811111111"
+              maxLength={10}
               style={{
                 ...styles.input,
                 ...(errors.phone ? styles.inputError : {}),
               }}
             />
-            {errors.email && <p style={styles.fieldError}>{errors.email}</p>}
+            {errors.phone && <p style={styles.fieldError}>{errors.phone}</p>}
           </div>
 
           {/* Password field */}
@@ -161,7 +154,6 @@ export default function LoginPage() {
                   ...(errors.password ? styles.inputError : {}),
                 }}
               />
-              {/* Show/hide password toggle */}
               <button
                 type="button"
                 onClick={() => setShowPassword((v) => !v)}
@@ -174,7 +166,6 @@ export default function LoginPage() {
             {errors.password && <p style={styles.fieldError}>{errors.password}</p>}
           </div>
 
-          {/* Submit button */}
           <button
             type="submit"
             disabled={mutation.isPending}
@@ -189,12 +180,9 @@ export default function LoginPage() {
 
         </form>
 
-        {/* Register link */}
         <p style={styles.footer}>
           Don't have an account?{" "}
-          <Link to="/register" style={styles.link}>
-            Create one
-          </Link>
+          <Link to="/register" style={styles.link}>Create one</Link>
         </p>
 
       </div>
@@ -202,12 +190,10 @@ export default function LoginPage() {
   );
 }
 
-// ── Styles ───────────────────────────────────────────────────────────────────
-// Plain JS object styles — no extra libraries needed
 const styles = {
   page: {
     minHeight: "100vh",
-    backgroundColor: "#FDF6F0", // warm off-white
+    backgroundColor: "#FDF6F0",
     display: "flex",
     alignItems: "center",
     justifyContent: "center",
@@ -270,7 +256,6 @@ const styles = {
     boxSizing: "border-box",
     backgroundColor: "#FFFAF7",
     color: "#1A0A00",
-    transition: "border-color 0.2s",
   },
   inputError: {
     borderColor: "#EF4444",
@@ -298,7 +283,7 @@ const styles = {
   submitButton: {
     width: "100%",
     padding: "13px",
-    backgroundColor: "#C84B2F", // GharChore brand red-orange
+    backgroundColor: "#C84B2F",
     color: "#FFFFFF",
     fontSize: "16px",
     fontWeight: 600,
@@ -306,7 +291,6 @@ const styles = {
     borderRadius: "8px",
     cursor: "pointer",
     marginTop: "8px",
-    transition: "background-color 0.2s",
   },
   footer: {
     textAlign: "center",

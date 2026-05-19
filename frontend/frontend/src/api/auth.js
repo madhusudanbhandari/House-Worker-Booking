@@ -1,10 +1,35 @@
-import api from './axios'
+// src/api/auth.js
+import api from "./axios";
 
-export const registerUser  = (data)  => api.post('/auth/register/', data)
-export const loginUser     = (data)  => api.post('/auth/login/', data)
-export const logoutUser    = (data)  => api.post('/auth/logout/', data)
-export const getProfile    = ()      => api.get('/auth/profile/')
-export const updateProfile = (data)  => api.put('/auth/profile/', data)
-export const changePassword = (data) => api.post('/auth/change-password/', data)
-export const getWorkerProfile  = ()     => api.get('/auth/worker-profile/')
-export const updateWorkerProfile = (data) => api.put('/auth/worker-profile/', data)
+// Helper — converts your API's nested tokens shape to the flat shape
+// { message, user, tokens: { access, refresh } }  →  { user, access, refresh }
+const normalizeAuthResponse = (data) => ({
+  user: data.user,
+  access: data.tokens.access,
+  refresh: data.tokens.refresh,
+});
+
+export const loginUser = async ({ phone, password }) => {
+  const response = await api.post("/auth/login/", { phone, password });
+  return normalizeAuthResponse(response.data);
+};
+
+export const registerUser = async (formData) => {
+  const response = await api.post("/auth/register/", formData);
+  return normalizeAuthResponse(response.data);
+};
+
+export const logoutUser = async (refreshToken) => {
+  const response = await api.post("/auth/logout/", { refresh: refreshToken });
+  return response.data;
+};
+
+export const getProfile = async () => {
+  const response = await api.get("/auth/profile/");
+  return response.data;
+};
+
+export const updateProfile = async (data) => {
+  const response = await api.put("/auth/profile/", data);
+  return response.data;
+};

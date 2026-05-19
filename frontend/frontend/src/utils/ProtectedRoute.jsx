@@ -1,28 +1,26 @@
-import { Navigate } from 'react-router-dom'
-import { useSelector } from 'react-redux'
-import { selectIsLoggedIn, selectUserRole } from '../store/slices/authSlice'
+// src/utils/ProtectedRoute.jsx
+import { useSelector } from "react-redux";
+import { Navigate, useLocation } from "react-router-dom";
+import { selectIsAuthenticated, selectCurrentUser } from "../store/slices/authSlice";
 
-// Protects routes that require login
-export function ProtectedRoute({ children }) {
-  const isLoggedIn = useSelector(selectIsLoggedIn)
-  if (!isLoggedIn) {
-    return <Navigate to="/login" replace />
-    // replace = don't add /login to browser history
-  }
-  return children
-}
+// allowedRoles: array like ["customer"] or ["worker"] or ["customer", "worker"]
+// If not passed, any logged-in user can access.
+export default function ProtectedRoute({ children, allowedRoles }) {
+  const isAuthenticated = useSelector(selectIsAuthenticated);
+  const user = useSelector(selectCurrentUser);
+  const location = useLocation();
 
-// Protects routes that require a specific role
-export function RoleRoute({ children, role }) {
-  const isLoggedIn = useSelector(selectIsLoggedIn)
-  const userRole   = useSelector(selectUserRole)
-
-  if (!isLoggedIn) return <Navigate to="/login" replace />
-
-  if (userRole !== role) {
-    // Wrong role — redirect to their own dashboard
-    return <Navigate to={`/${userRole}/dashboard`} replace />
+  // Not logged in — redirect to login, remember where they were going
+  if (!isAuthenticated) {
+    return <Navigate to="/login" state={{ from: location }} replace />;
   }
 
-  return children
+  // Logged in but wrong role — redirect to their correct dashboard
+  if (allowedRoles && !allowedRoles.includes(user?.role)) {
+    if (user?.role === "worker") return <Navigate to="/worker/dashboard" replace />;
+    if (user?.role === "admin") return <Navigate to="/admin/dashboard" replace />;
+    return <Navigate to="/dashboard" replace />;
+  }
+
+  return children;
 }

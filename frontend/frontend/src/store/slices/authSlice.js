@@ -1,64 +1,59 @@
-import { createSlice } from '@reduxjs/toolkit'
+// src/store/slices/authSlice.js
+import { createSlice } from "@reduxjs/toolkit";
 
-// Try to load saved user from localStorage on app start
-const savedUser = localStorage.getItem('user')
+const storedUser = localStorage.getItem("user");
+const storedAccess = localStorage.getItem("accessToken");
+const storedRefresh = localStorage.getItem("refreshToken");
 
 const initialState = {
-  user        : savedUser ? JSON.parse(savedUser) : null,
-  accessToken : localStorage.getItem('access_token')  || null,
-  refreshToken: localStorage.getItem('refresh_token') || null,
-  isLoading   : false,
-  error       : null,
-}
+  user: storedUser ? JSON.parse(storedUser) : null,
+  // user shape from your API:
+  // { id, phone, full_name, email, role, area, created_at }
+  accessToken: storedAccess || null,
+  refreshToken: storedRefresh || null,
+  isAuthenticated: !!storedAccess,
+};
 
 const authSlice = createSlice({
-  name: 'auth',
+  name: "auth",
   initialState,
-
   reducers: {
-    // Called after successful login or register
     setCredentials: (state, action) => {
-      const { user, tokens } = action.payload
-      state.user         = user
-      state.accessToken  = tokens.access
-      state.refreshToken = tokens.refresh
-      state.error        = null
+      const payload = action.payload;
 
-      // Persist to localStorage so user stays logged in on page refresh
-      localStorage.setItem('user',          JSON.stringify(user))
-      localStorage.setItem('access_token',  tokens.access)
-      localStorage.setItem('refresh_token', tokens.refresh)
+      // Handle both flat shape { user, access, refresh }
+      // and nested shape { user, tokens: { access, refresh } }
+      // This way login and register both work regardless of shape
+      const access = payload.access ?? payload.tokens?.access;
+      const refresh = payload.refresh ?? payload.tokens?.refresh;
+      const user = payload.user;
+
+      state.user = user;
+      state.accessToken = access;
+      state.refreshToken = refresh;
+      state.isAuthenticated = true;
+
+      localStorage.setItem("user", JSON.stringify(user));
+      localStorage.setItem("accessToken", access);
+      localStorage.setItem("refreshToken", refresh);
     },
 
-    // Called on logout
     clearCredentials: (state) => {
-      state.user         = null
-      state.accessToken  = null
-      state.refreshToken = null
+      state.user = null;
+      state.accessToken = null;
+      state.refreshToken = null;
+      state.isAuthenticated = false;
 
-      localStorage.removeItem('user')
-      localStorage.removeItem('access_token')
-      localStorage.removeItem('refresh_token')
-    },
-
-    // Update user info after profile edit
-    updateUser: (state, action) => {
-      state.user = { ...state.user, ...action.payload }
-      localStorage.setItem('user', JSON.stringify(state.user))
-    },
-
-    setError: (state, action) => {
-      state.error = action.payload
+      localStorage.removeItem("user");
+      localStorage.removeItem("accessToken");
+      localStorage.removeItem("refreshToken");
     },
   },
-})
+});
 
-export const { setCredentials, clearCredentials, updateUser, setError } = authSlice.actions
+export const { setCredentials, clearCredentials } = authSlice.actions;
+export default authSlice.reducer;
 
-// Selectors — used in components to read state
-export const selectUser         = (state) => state.auth.user
-export const selectIsLoggedIn   = (state) => !!state.auth.user
-export const selectUserRole     = (state) => state.auth.user?.role
-export const selectAccessToken  = (state) => state.auth.accessToken
-
-export default authSlice.reducer
+export const selectCurrentUser = (state) => state.auth.user;
+export const selectIsAuthenticated = (state) => state.auth.isAuthenticated;
+export const selectAccessToken = (state) => state.auth.accessToken;
