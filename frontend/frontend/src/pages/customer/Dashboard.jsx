@@ -156,7 +156,7 @@ export default function CustomerDashboard() {
       <nav style={styles.navbar}>
         <div style={styles.navBrand}>
           <span style={styles.navLogo}>🏠</span>
-          <span style={styles.navName}>GharChore</span>
+          <span style={styles.navName}>GharKoKaam</span>
         </div>
         <div style={styles.navRight}>
           <button

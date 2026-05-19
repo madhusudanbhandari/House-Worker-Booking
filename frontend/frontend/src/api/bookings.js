@@ -11,6 +11,15 @@ export const getMyBookings = async () => {
   return [];
 };
 
+export const getWorkerBookings = async () => {
+  const response = await api.get("/bookings/worker-bookings/");
+  const data = response.data;
+  if (Array.isArray(data)) return data;
+  if (Array.isArray(data.results)) return data.results;
+  return [];
+};
+
+
 export const getBookingStats = async () => {
   const response = await api.get("/bookings/stats/");
   return response.data; // this one returns an object, not array — fine as-is

@@ -1,4 +1,3 @@
-// src/App.jsx
 import { Routes, Route, Navigate } from "react-router-dom";
 import ProtectedRoute from "./utils/ProtectedRoute";
 
@@ -8,19 +7,15 @@ import RegisterPage from "./pages/auth/RegisterPage";
 
 // Customer pages
 import CustomerDashboard from "./pages/customer/Dashboard";
-// import MyBookings from "./pages/customer/MyBookings";         // Step 14
-// import BookingDetail from "./pages/customer/BookingDetail";   // Step 15
-// import SearchWorkers from "./pages/customer/SearchWorkers";   // Step 16
-// import WorkerDetail from "./pages/customer/WorkerDetail";     // Step 17
+// import MyBookings from "./pages/customer/MyBookings";
+// import BookingDetail from "./pages/customer/BookingDetail";
+// import SearchWorkers from "./pages/customer/SearchWorkers";
+// import WorkerDetail from "./pages/customer/WorkerDetail";
 
-// // Worker pages
-// import WorkerDashboard from "./pages/worker/WorkerDashboard"; // Step 18
-// import WorkerBookings from "./pages/worker/WorkerBookings";   // Step 19
-// import ManageServices from "./pages/worker/ManageServices";   // Step 20
-
-// // Shared pages
-// import ProfilePage from "./pages/shared/ProfilePage";         // Step 21
-// import NotFound from "./pages/shared/NotFound";
+// Worker pages
+import WorkerDashboard from "./pages/worker/WorkerDashboard";
+// import WorkerBookings from "./pages/worker/WorkerBookings";
+// import ManageServices from "./pages/worker/ManageServices";
 
 export default function App() {
   return (
@@ -73,10 +68,10 @@ export default function App() {
             <WorkerDetail />
           </ProtectedRoute>
         }
-      />
+      /> */}
 
       {/* Worker routes */}
-      {/* <Route
+      <Route
         path="/worker/dashboard"
         element={
           <ProtectedRoute allowedRoles={["worker"]}>
@@ -84,7 +79,7 @@ export default function App() {
           </ProtectedRoute>
         }
       />
-      <Route
+      {/* <Route
         path="/worker/bookings"
         element={
           <ProtectedRoute allowedRoles={["worker"]}>
@@ -99,20 +94,7 @@ export default function App() {
             <ManageServices />
           </ProtectedRoute>
         }
-      />
-
-      {/* Shared routes */}
-      {/* <Route
-        path="/profile"
-        element={
-          <ProtectedRoute>
-            <ProfilePage />
-          </ProtectedRoute>
-        }
-      />
-
-      {/* 404 */}
-      {/* <Route path="*" element={<NotFound />} />   */}
+      /> */}
 
     </Routes>
   );
