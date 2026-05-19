@@ -9,7 +9,7 @@ import RegisterPage from "./pages/auth/RegisterPage";
 import CustomerDashboard from "./pages/customer/Dashboard";
 // import MyBookings from "./pages/customer/MyBookings";
 // import BookingDetail from "./pages/customer/BookingDetail";
-// import SearchWorkers from "./pages/customer/SearchWorkers";
+import SearchWorkers from "./pages/customer/SearchWorkers";
 // import WorkerDetail from "./pages/customer/WorkerDetail";
 
 // Worker pages
@@ -53,14 +53,7 @@ export default function App() {
           </ProtectedRoute>
         }
       />
-      <Route
-        path="/search-workers"
-        element={
-          <ProtectedRoute allowedRoles={["customer"]}>
-            <SearchWorkers />
-          </ProtectedRoute>
-        }
-      />
+   
       <Route
         path="/workers/:id"
         element={
@@ -71,6 +64,14 @@ export default function App() {
       /> */}
 
       {/* Worker routes */}
+         <Route
+        path="/search-workers"
+        element={
+          <ProtectedRoute allowedRoles={["customer"]}>
+            <SearchWorkers />
+          </ProtectedRoute>
+        }
+      />
       <Route
         path="/worker/dashboard"
         element={
@@ -78,6 +79,7 @@ export default function App() {
             <WorkerDashboard />
           </ProtectedRoute>
         }
+
       />
       {/* <Route
         path="/worker/bookings"
