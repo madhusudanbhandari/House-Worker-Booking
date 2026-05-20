@@ -7,7 +7,7 @@ import store from './store/index'
 import App from './App.jsx'
 import './index.css'
 
-// React Query client — handles caching and refetching of API data
+
 const queryClient = new QueryClient({
   defaultOptions: {
     queries: {

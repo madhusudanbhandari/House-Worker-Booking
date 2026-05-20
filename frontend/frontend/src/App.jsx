@@ -10,7 +10,7 @@ import CustomerDashboard from "./pages/customer/Dashboard";
 // import MyBookings from "./pages/customer/MyBookings";
 // import BookingDetail from "./pages/customer/BookingDetail";
 import SearchWorkers from "./pages/customer/SearchWorkers";
-// import WorkerDetail from "./pages/customer/WorkerDetail";
+import WorkerDetail from "./pages/customer/WorkerDetail";
 
 // Worker pages
 import WorkerDashboard from "./pages/worker/WorkerDashboard";
@@ -53,7 +53,7 @@ export default function App() {
           </ProtectedRoute>
         }
       />
-   
+        */}
       <Route
         path="/workers/:id"
         element={
@@ -61,7 +61,7 @@ export default function App() {
             <WorkerDetail />
           </ProtectedRoute>
         }
-      /> */}
+      /> 
 
       {/* Worker routes */}
          <Route
