@@ -15,7 +15,7 @@ import WorkerDetail from "./pages/customer/WorkerDetail";
 // Worker pages
 import WorkerDashboard from "./pages/worker/WorkerDashboard";
 // import WorkerBookings from "./pages/worker/WorkerBookings";
-// import ManageServices from "./pages/worker/ManageServices";
+import ManageServices from "./pages/worker/ManageServices";
 
 export default function App() {
   return (
@@ -90,6 +90,7 @@ export default function App() {
           </ProtectedRoute>
         }
       />
+      */}
       <Route
         path="/worker/services"
         element={
@@ -97,7 +98,7 @@ export default function App() {
             <ManageServices />
           </ProtectedRoute>
         }
-      /> */}
+      /> 
 
     </Routes>
   );
