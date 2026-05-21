@@ -1,11 +1,10 @@
-// src/pages/worker/ManageServices.jsx
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { getCategories, getServices } from "../../api/services";
 import api from "../../api/axios";
 
-// ── API functions (local — no PATCH exists) ───────────────────────────────────
+
 const getMyServices = async () => {
   const response = await api.get("/services/my-services/");
   const data = response.data;
