@@ -1,6 +1,22 @@
-// import api from './axios'
+// src/api/reviews.js
+import api from "./axios";
 
-// export const createReview     = (data) => api.post('/reviews/create/', data)
-// export const getWorkerReviews = (id)   => api.get(`/reviews/worker/${id}/`)
-// export const getMyReviews     = ()     => api.get('/reviews/my-reviews/')
-// export const getPendingReviews = ()    => api.get('/reviews/pending/')
+export const createReview = async ({ booking_id, rating, comment }) => {
+  const response = await api.post("/reviews/create/", {
+    booking_id,
+    rating,
+    comment: comment || "",
+  });
+  return response.data;
+  // Response: { id, booking, customer_name, worker_name, rating, comment, created_at }
+};
+
+export const getWorkerReviews = async (workerId) => {
+  const response = await api.get(`/reviews/worker/${workerId}/`);
+  return response.data;
+};
+
+export const getPendingReviews = async () => {
+  const response = await api.get("/reviews/pending/");
+  return response.data;
+};
