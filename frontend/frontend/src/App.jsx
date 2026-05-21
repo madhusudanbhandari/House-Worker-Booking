@@ -7,7 +7,7 @@ import RegisterPage from "./pages/auth/RegisterPage";
 
 // Customer pages
 import CustomerDashboard from "./pages/customer/Dashboard";
-// import MyBookings from "./pages/customer/MyBookings";
+import MyBookings from "./pages/customer/MyBookings";
 // import BookingDetail from "./pages/customer/BookingDetail";
 import SearchWorkers from "./pages/customer/SearchWorkers";
 import WorkerDetail from "./pages/customer/WorkerDetail";
@@ -37,7 +37,7 @@ export default function App() {
           </ProtectedRoute>
         }
       />
-      {/* <Route
+       <Route
         path="/my-bookings"
         element={
           <ProtectedRoute allowedRoles={["customer"]}>
@@ -45,6 +45,7 @@ export default function App() {
           </ProtectedRoute>
         }
       />
+      {/*
       <Route
         path="/bookings/:id"
         element={
