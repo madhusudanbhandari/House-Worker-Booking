@@ -1,21 +1,25 @@
 import { Routes, Route, Navigate } from "react-router-dom";
 import ProtectedRoute from "./utils/ProtectedRoute";
 
-// Auth pages
+
 import LoginPage from "./pages/auth/LoginPage";
 import RegisterPage from "./pages/auth/RegisterPage";
 
-// Customer pages
+
 import CustomerDashboard from "./pages/customer/Dashboard";
 import MyBookings from "./pages/customer/MyBookings";
 import BookingDetail from "./pages/customer/BookingDetail";
 import SearchWorkers from "./pages/customer/SearchWorkers";
 import WorkerDetail from "./pages/customer/WorkerDetail";
 
-// Worker pages
+
 import WorkerDashboard from "./pages/worker/WorkerDashboard";
 // import WorkerBookings from "./pages/worker/WorkerBookings";
 import ManageServices from "./pages/worker/ManageServices";
+
+
+import ProfilePage from "./pages/shared/ProfilePage";
+
 
 export default function App() {
   return (
@@ -99,7 +103,14 @@ export default function App() {
           </ProtectedRoute>
         }
       /> 
-
+      <Route
+      path="/profile"
+      element={
+        <ProtectedRoute>
+          <ProfilePage/>
+        </ProtectedRoute>
+      }  
+      />
     </Routes>
   );
 }

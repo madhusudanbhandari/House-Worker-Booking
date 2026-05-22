@@ -1,8 +1,6 @@
 // src/api/auth.js
 import api from "./axios";
 
-// Helper — converts your API's nested tokens shape to the flat shape
-// { message, user, tokens: { access, refresh } }  →  { user, access, refresh }
 const normalizeAuthResponse = (data) => ({
   user: data.user,
   access: data.tokens.access,
@@ -27,9 +25,11 @@ export const logoutUser = async (refreshToken) => {
 export const getProfile = async () => {
   const response = await api.get("/auth/profile/");
   return response.data;
+  // Returns: { id, phone, full_name, email, role, area, created_at }
 };
 
 export const updateProfile = async (data) => {
   const response = await api.put("/auth/profile/", data);
   return response.data;
+  // Returns: { message, user: { id, phone, full_name, email, role, area, created_at } }
 };
