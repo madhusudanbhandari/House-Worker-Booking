@@ -157,4 +157,36 @@ class CategoryCreateView(APIView):
             serializer.save()
             return Response(serializer.data, status=201)
         return Response(serializer.errors,status=400)
-    
+
+
+class WorkerCreateServiceView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def post(self, request):
+        if not request.user.is_worker:
+            return Response({'error': 'Only workers can do this.'}, status=403)
+
+     
+        service_data = {
+            'name': request.data.get('name'),
+            'description': request.data.get('description', ''),
+            'base_price': request.data.get('my_price'),  # use their price as base
+            'duration_hours': request.data.get('my_duration', 1.0),
+            'category': request.data.get('category_id'),
+            'is_active': True,
+        }
+        service_serializer = ServiceSerializer(data=service_data)
+        if not service_serializer.is_valid():
+            return Response(service_serializer.errors, status=400)
+        service = service_serializer.save()
+
+       
+        worker_service = WorkerService.objects.create(
+            worker=request.user,
+            service=service,
+            my_price=request.data.get('my_price'),
+            my_duration=request.data.get('my_duration', 1.0),
+            is_active=True,
+        )
+        serializer = WorkerServiceSerializer(worker_service)
+        return Response(serializer.data, status=201)
