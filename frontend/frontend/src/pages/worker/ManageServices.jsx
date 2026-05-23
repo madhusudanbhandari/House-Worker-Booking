@@ -1,10 +1,11 @@
+// src/pages/worker/ManageServices.jsx
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import { getCategories, getServices } from "../../api/services";
+import { getCategories } from "../../api/services";
 import api from "../../api/axios";
 
-
+// ── API functions ─────────────────────────────────────────────────────────────
 const getMyServices = async () => {
   const response = await api.get("/services/my-services/");
   const data = response.data;
@@ -13,12 +14,10 @@ const getMyServices = async () => {
   return [];
 };
 
-const addMyService = async ({ service_id, my_price, my_duration }) => {
-  const response = await api.post("/services/my-services/", {
-    service_id,
-    my_price,
-    my_duration,
-  });
+const addMyService = async (data) => {
+  // POST /api/services/create-custom/
+  // body: { name, description, category_id, my_price, my_duration }
+  const response = await api.post("/services/create-custom/", data);
   return response.data;
 };
 
@@ -40,14 +39,16 @@ export default function ManageServices() {
   // ── Add form state ────────────────────────────────────────────────────────
   const [showAddForm, setShowAddForm] = useState(false);
   const [formData, setFormData] = useState({
-    service_id: "",
+    name: "",
+    description: "",
+    category_id: "",
     my_price: "",
     my_duration: "",
   });
   const [formErrors, setFormErrors] = useState({});
 
   // ── Delete confirm state ──────────────────────────────────────────────────
-  const [deletingId, setDeletingId] = useState(null); // id being confirmed for delete
+  const [deletingId, setDeletingId] = useState(null);
 
   // ── Fetch my services ─────────────────────────────────────────────────────
   const {
@@ -59,25 +60,11 @@ export default function ManageServices() {
     queryFn: getMyServices,
   });
 
-  // ── Fetch all available services to pick from ─────────────────────────────
-  const { data: allServices = [] } = useQuery({
-    queryKey: ["services"],
-    queryFn: getServices,
-    // Normalize in case paginated
-    select: (data) => {
-      if (Array.isArray(data)) return data;
-      if (Array.isArray(data.results)) return data.results;
-      return [];
-    },
+  // ── Fetch categories for dropdown ─────────────────────────────────────────
+  const { data: categories = [] } = useQuery({
+    queryKey: ["categories"],
+    queryFn: getCategories,
   });
-
-  // ── Already added service IDs — to filter out from dropdown ──────────────
-  const addedServiceIds = myServices.map((s) => s.service?.id);
-
-  // ── Available services to add = all services minus already added ──────────
-  const availableServices = allServices.filter(
-    (s) => !addedServiceIds.includes(s.id) && s.is_active
-  );
 
   // ── Add mutation ──────────────────────────────────────────────────────────
   const addMutation = useMutation({
@@ -86,7 +73,13 @@ export default function ManageServices() {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["myServices"] });
       setShowAddForm(false);
-      setFormData({ service_id: "", my_price: "", my_duration: "" });
+      setFormData({
+        name: "",
+        description: "",
+        category_id: "",
+        my_price: "",
+        my_duration: "",
+      });
       setFormErrors({});
     },
 
@@ -133,8 +126,11 @@ export default function ManageServices() {
   const validate = () => {
     const e = {};
 
-    if (!formData.service_id) {
-      e.service_id = "Please select a service.";
+    if (!formData.name.trim()) {
+      e.name = "Service name is required.";
+    }
+    if (!formData.category_id) {
+      e.category_id = "Please select a category.";
     }
     if (!formData.my_price) {
       e.my_price = "Price is required.";
@@ -142,7 +138,7 @@ export default function ManageServices() {
       e.my_price = "Enter a valid price.";
     }
     if (formData.my_duration && isNaN(formData.my_duration)) {
-      e.my_duration = "Enter a valid duration in hours.";
+      e.my_duration = "Enter a valid number of hours.";
     }
 
     setFormErrors(e);
@@ -154,10 +150,24 @@ export default function ManageServices() {
     if (!validate()) return;
 
     addMutation.mutate({
-      service_id: parseInt(formData.service_id),
+      name: formData.name.trim(),
+      description: formData.description.trim(),
+      category_id: parseInt(formData.category_id),
       my_price: formData.my_price,
-      my_duration: formData.my_duration || undefined,
+      my_duration: formData.my_duration || "1.0",
     });
+  };
+
+  const handleCancelAdd = () => {
+    setShowAddForm(false);
+    setFormData({
+      name: "",
+      description: "",
+      category_id: "",
+      my_price: "",
+      my_duration: "",
+    });
+    setFormErrors({});
   };
 
   // ── Render ────────────────────────────────────────────────────────────────
@@ -178,7 +188,10 @@ export default function ManageServices() {
             setShowAddForm((v) => !v);
             setFormErrors({});
           }}
-          style={styles.addBtn}
+          style={{
+            ...styles.addBtn,
+            backgroundColor: showAddForm ? "#7A6055" : "#C84B2F",
+          }}
         >
           {showAddForm ? "✕ Cancel" : "+ Add"}
         </button>
@@ -190,6 +203,9 @@ export default function ManageServices() {
         {showAddForm && (
           <div style={styles.addFormCard}>
             <h2 style={styles.addFormTitle}>Add a new service</h2>
+            <p style={styles.addFormSubtitle}>
+              Describe the service you provide — customers will see this when browsing.
+            </p>
 
             {formErrors.general && (
               <div style={styles.errorBanner}>⚠ {formErrors.general}</div>
@@ -197,103 +213,135 @@ export default function ManageServices() {
 
             <form onSubmit={handleAddSubmit} noValidate>
 
-              {/* Service picker */}
+              {/* Service name */}
               <div style={styles.fieldGroup}>
-                <label style={styles.label}>Service</label>
-                {availableServices.length === 0 ? (
-                  <p style={styles.noServicesText}>
-                    All available services have been added already.
-                  </p>
-                ) : (
-                  <select
-                    name="service_id"
-                    value={formData.service_id}
-                    onChange={handleChange}
-                    style={{
-                      ...styles.select,
-                      ...(formErrors.service_id ? styles.inputError : {}),
-                    }}
-                  >
-                    <option value="">Select a service...</option>
-                    {availableServices.map((s) => (
-                      <option key={s.id} value={s.id}>
-                        {s.name} — base Rs. {parseFloat(s.base_price).toLocaleString()}
-                      </option>
-                    ))}
-                  </select>
-                )}
-                {formErrors.service_id && (
-                  <p style={styles.fieldError}>{formErrors.service_id}</p>
-                )}
-              </div>
-
-              {/* My price */}
-              <div style={styles.fieldGroup}>
-                <label style={styles.label}>Your price (Rs.)</label>
+                <label style={styles.label}>Service name</label>
                 <input
-                  name="my_price"
-                  type="number"
-                  min="0"
-                  step="50"
-                  value={formData.my_price}
+                  name="name"
+                  type="text"
+                  value={formData.name}
                   onChange={handleChange}
-                  placeholder="e.g. 500"
+                  placeholder="e.g. Water pump repair, Bulb installation"
                   style={{
                     ...styles.input,
-                    ...(formErrors.my_price ? styles.inputError : {}),
+                    ...(formErrors.name ? styles.inputError : {}),
                   }}
                 />
-                {formErrors.my_price && (
-                  <p style={styles.fieldError}>{formErrors.my_price}</p>
+                {formErrors.name && (
+                  <p style={styles.fieldError}>{formErrors.name}</p>
                 )}
               </div>
 
-              {/* My duration */}
+              {/* Description */}
               <div style={styles.fieldGroup}>
                 <label style={styles.label}>
-                  Duration (hours){" "}
+                  Description{" "}
                   <span style={styles.optionalLabel}>(optional)</span>
                 </label>
-                <input
-                  name="my_duration"
-                  type="number"
-                  min="0.5"
-                  step="0.5"
-                  value={formData.my_duration}
+                <textarea
+                  name="description"
+                  value={formData.description}
                   onChange={handleChange}
-                  placeholder="e.g. 1.5"
-                  style={{
-                    ...styles.input,
-                    ...(formErrors.my_duration ? styles.inputError : {}),
-                  }}
+                  placeholder="Brief description — what's included, your experience, etc."
+                  rows={3}
+                  style={styles.textarea}
                 />
-                {formErrors.my_duration && (
-                  <p style={styles.fieldError}>{formErrors.my_duration}</p>
-                )}
-                <p style={styles.hint}>
-                  Leave blank to use the service default duration
-                </p>
               </div>
 
-              <button
-                type="submit"
-                disabled={
-                  addMutation.isPending || availableServices.length === 0
-                }
-                style={{
-                  ...styles.submitBtn,
-                  opacity:
-                    addMutation.isPending || availableServices.length === 0
-                      ? 0.6
-                      : 1,
-                  cursor:
-                    addMutation.isPending || availableServices.length === 0
-                      ? "not-allowed"
-                      : "pointer",
-                }}
-              >
-                {addMutation.isPending ? "Adding..." : "Add service"}
-              </button>
+              {/* Category */}
+              <div style={styles.fieldGroup}>
+                <label style={styles.label}>Category</label>
+                <select
+                  name="category_id"
+                  value={formData.category_id}
+                  onChange={handleChange}
+                  style={{
+                    ...styles.select,
+                    ...(formErrors.category_id ? styles.inputError : {}),
+                  }}
+                >
+                  <option value="">Select a category...</option>
+                  {categories.map((cat) => (
+                    <option key={cat.id} value={cat.id}>
+                      {cat.name}
+                    </option>
+                  ))}
+                </select>
+                {formErrors.category_id && (
+                  <p style={styles.fieldError}>{formErrors.category_id}</p>
+                )}
+              </div>
+
+              {/* Price + Duration side by side */}
+              <div style={styles.row}>
+                <div style={{ flex: 1 }}>
+                  <label style={styles.label}>Your price (Rs.)</label>
+                  <input
+                    name="my_price"
+                    type="number"
+                    min="0"
+                    step="50"
+                    value={formData.my_price}
+                    onChange={handleChange}
+                    placeholder="e.g. 500"
+                    style={{
+                      ...styles.input,
+                      ...(formErrors.my_price ? styles.inputError : {}),
+                    }}
+                  />
+                  {formErrors.my_price && (
+                    <p style={styles.fieldError}>{formErrors.my_price}</p>
+                  )}
+                </div>
+                <div style={{ flex: 1 }}>
+                  <label style={styles.label}>
+                    Duration (hrs){" "}
+                    <span style={styles.optionalLabel}>(opt)</span>
+                  </label>
+                  <input
+                    name="my_duration"
+                    type="number"
+                    min="0.5"
+                    step="0.5"
+                    value={formData.my_duration}
+                    onChange={handleChange}
+                    placeholder="e.g. 1.5"
+                    style={{
+                      ...styles.input,
+                      ...(formErrors.my_duration ? styles.inputError : {}),
+                    }}
+                  />
+                  {formErrors.my_duration && (
+                    <p style={styles.fieldError}>{formErrors.my_duration}</p>
+                  )}
+                </div>
+              </div>
+
+              <p style={styles.hint}>
+                Duration defaults to 1 hour if left blank.
+              </p>
+
+              {/* Buttons */}
+              <div style={styles.formBtns}>
+                <button
+                  type="button"
+                  onClick={handleCancelAdd}
+                  style={styles.cancelBtn}
+                >
+                  Cancel
+                </button>
+                <button
+                  type="submit"
+                  disabled={addMutation.isPending}
+                  style={{
+                    ...styles.submitBtn,
+                    opacity: addMutation.isPending ? 0.6 : 1,
+                    cursor: addMutation.isPending ? "not-allowed" : "pointer",
+                  }}
+                >
+                  {addMutation.isPending ? "Adding..." : "Add service"}
+                </button>
+              </div>
 
             </form>
           </div>
@@ -304,6 +352,11 @@ export default function ManageServices() {
           <h2 style={styles.sectionTitle}>
             Your services ({myServices.length})
           </h2>
+          {myServices.length > 0 && (
+            <p style={styles.sectionSubtitle}>
+              Customers can book these from your profile
+            </p>
+          )}
         </div>
 
         {myServicesLoading ? (
@@ -315,7 +368,7 @@ export default function ManageServices() {
             <p style={styles.emptyIcon}>🔧</p>
             <p style={styles.emptyTitle}>No services added yet</p>
             <p style={styles.emptySubtitle}>
-              Add services so customers can find and book you.
+              Add the services you provide so customers can find and book you.
             </p>
             <button
               onClick={() => setShowAddForm(true)}
@@ -332,7 +385,7 @@ export default function ManageServices() {
               return (
                 <div key={s.id} style={styles.serviceCard}>
 
-                  {/* ── Service info ── */}
+                  {/* ── Top row ── */}
                   <div style={styles.serviceCardTop}>
                     <div style={styles.serviceInfo}>
                       <p style={styles.serviceName}>{s.service?.name}</p>
@@ -342,7 +395,6 @@ export default function ManageServices() {
                         </p>
                       )}
                     </div>
-                    {/* Active indicator */}
                     <span
                       style={{
                         ...styles.activeBadge,
@@ -355,7 +407,7 @@ export default function ManageServices() {
                     </span>
                   </div>
 
-                  {/* ── Price + duration row ── */}
+                  {/* ── Price + duration + base price ── */}
                   <div style={styles.metaRow}>
                     <div style={styles.metaItem}>
                       <p style={styles.metaLabel}>Your price</p>
@@ -374,14 +426,14 @@ export default function ManageServices() {
                     </div>
                     <div style={styles.metaDivider} />
                     <div style={styles.metaItem}>
-                      <p style={styles.metaLabel}>Base price</p>
-                      <p style={{ ...styles.metaValue, color: "#9CA3AF" }}>
-                        {formatPrice(s.service?.base_price)}
+                      <p style={styles.metaLabel}>Category</p>
+                      <p style={{ ...styles.metaValue, color: "#7A6055", fontSize: "12px" }}>
+                        {s.service?.category || "—"}
                       </p>
                     </div>
                   </div>
 
-                  {/* ── Delete confirmation ── */}
+                  {/* ── Delete ── */}
                   {!isDeleting ? (
                     <button
                       onClick={() => setDeletingId(s.id)}
@@ -412,9 +464,7 @@ export default function ManageServices() {
                               : "pointer",
                           }}
                         >
-                          {deleteMutation.isPending
-                            ? "Removing..."
-                            : "Yes, remove"}
+                          {deleteMutation.isPending ? "Removing..." : "Yes, remove"}
                         </button>
                       </div>
                     </div>
@@ -438,8 +488,6 @@ const styles = {
     backgroundColor: "#FDF6F0",
     fontFamily: "'Segoe UI', system-ui, sans-serif",
   },
-
-  // Navbar
   navbar: {
     backgroundColor: "#FFFFFF",
     borderBottom: "1px solid #F0E6DF",
@@ -468,7 +516,6 @@ const styles = {
     color: "#1A0A00",
   },
   addBtn: {
-    backgroundColor: "#C84B2F",
     color: "#FFFFFF",
     border: "none",
     borderRadius: "8px",
@@ -476,17 +523,16 @@ const styles = {
     fontSize: "14px",
     fontWeight: 600,
     cursor: "pointer",
-    minWidth: "60px",
+    minWidth: "70px",
+    transition: "background-color 0.2s",
   },
-
-  // Main
   main: {
     maxWidth: "680px",
     margin: "0 auto",
     padding: "20px 16px 60px",
   },
 
-  // Add form card
+  // Add form
   addFormCard: {
     backgroundColor: "#FFFFFF",
     border: "1.5px solid #C84B2F",
@@ -498,7 +544,12 @@ const styles = {
     fontSize: "16px",
     fontWeight: 700,
     color: "#1A0A00",
-    margin: "0 0 16px",
+    margin: "0 0 4px",
+  },
+  addFormSubtitle: {
+    fontSize: "13px",
+    color: "#9CA3AF",
+    margin: "0 0 18px",
   },
   errorBanner: {
     backgroundColor: "#FEF2F2",
@@ -512,6 +563,11 @@ const styles = {
   fieldGroup: {
     marginBottom: "16px",
   },
+  row: {
+    display: "flex",
+    gap: "12px",
+    marginBottom: "4px",
+  },
   label: {
     display: "block",
     fontSize: "14px",
@@ -523,18 +579,6 @@ const styles = {
     fontSize: "12px",
     color: "#9CA3AF",
     fontWeight: 400,
-  },
-  select: {
-    width: "100%",
-    padding: "11px 14px",
-    fontSize: "14px",
-    border: "1.5px solid #E0D5CF",
-    borderRadius: "8px",
-    outline: "none",
-    boxSizing: "border-box",
-    backgroundColor: "#FFFAF7",
-    color: "#1A0A00",
-    cursor: "pointer",
   },
   input: {
     width: "100%",
@@ -556,27 +600,62 @@ const styles = {
     fontSize: "13px",
     color: "#DC2626",
   },
+  textarea: {
+    width: "100%",
+    padding: "11px 14px",
+    fontSize: "14px",
+    border: "1.5px solid #E0D5CF",
+    borderRadius: "8px",
+    outline: "none",
+    boxSizing: "border-box",
+    backgroundColor: "#FFFAF7",
+    color: "#1A0A00",
+    resize: "vertical",
+    fontFamily: "inherit",
+    lineHeight: 1.5,
+  },
+  select: {
+    width: "100%",
+    padding: "11px 14px",
+    fontSize: "14px",
+    border: "1.5px solid #E0D5CF",
+    borderRadius: "8px",
+    outline: "none",
+    boxSizing: "border-box",
+    backgroundColor: "#FFFAF7",
+    color: "#1A0A00",
+    cursor: "pointer",
+  },
   hint: {
-    margin: "4px 0 0",
     fontSize: "12px",
     color: "#9CA3AF",
+    margin: "4px 0 16px",
   },
-  noServicesText: {
+  formBtns: {
+    display: "flex",
+    gap: "10px",
+    marginTop: "4px",
+  },
+  cancelBtn: {
+    flex: 1,
+    padding: "11px",
     fontSize: "14px",
-    color: "#9CA3AF",
-    fontStyle: "italic",
-    margin: 0,
+    fontWeight: 600,
+    border: "1.5px solid #E0D5CF",
+    borderRadius: "8px",
+    background: "#FFFFFF",
+    color: "#7A6055",
+    cursor: "pointer",
   },
   submitBtn: {
-    width: "100%",
-    padding: "12px",
-    backgroundColor: "#C84B2F",
-    color: "#FFFFFF",
-    fontSize: "15px",
+    flex: 2,
+    padding: "11px",
+    fontSize: "14px",
     fontWeight: 600,
     border: "none",
     borderRadius: "8px",
-    cursor: "pointer",
+    backgroundColor: "#C84B2F",
+    color: "#FFFFFF",
   },
 
   // Section header
@@ -587,6 +666,11 @@ const styles = {
     fontSize: "17px",
     fontWeight: 700,
     color: "#1A0A00",
+    margin: "0 0 2px",
+  },
+  sectionSubtitle: {
+    fontSize: "13px",
+    color: "#9CA3AF",
     margin: 0,
   },
 
@@ -596,8 +680,6 @@ const styles = {
     flexDirection: "column",
     gap: "12px",
   },
-
-  // Service card
   serviceCard: {
     backgroundColor: "#FFFFFF",
     border: "1.5px solid #F0E6DF",
@@ -625,6 +707,7 @@ const styles = {
     fontSize: "13px",
     color: "#7A6055",
     margin: 0,
+    lineHeight: 1.4,
   },
   activeBadge: {
     fontSize: "11px",
@@ -634,8 +717,6 @@ const styles = {
     whiteSpace: "nowrap",
     flexShrink: 0,
   },
-
-  // Meta row
   metaRow: {
     display: "flex",
     alignItems: "center",
@@ -667,8 +748,6 @@ const styles = {
     height: "28px",
     backgroundColor: "#F0E6DF",
   },
-
-  // Remove button
   removeBtn: {
     background: "none",
     border: "1px solid #FCA5A5",
@@ -679,8 +758,6 @@ const styles = {
     color: "#DC2626",
     cursor: "pointer",
   },
-
-  // Delete confirm
   deleteConfirm: {
     backgroundColor: "#FEF2F2",
     border: "1px solid #FCA5A5",
@@ -718,8 +795,6 @@ const styles = {
     backgroundColor: "#DC2626",
     color: "#FFFFFF",
   },
-
-  // Loading / error / empty
   loadingText: {
     color: "#9CA3AF",
     fontSize: "14px",
@@ -749,6 +824,7 @@ const styles = {
     fontSize: "14px",
     color: "#9CA3AF",
     margin: "0 0 20px",
+    lineHeight: 1.5,
   },
   emptyAddBtn: {
     padding: "10px 24px",
