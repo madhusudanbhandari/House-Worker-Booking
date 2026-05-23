@@ -13,4 +13,5 @@ urlpatterns = [
     path('my-services/',        views.MyServicesView.as_view(),      name='my_services'),
     path('my-services/<int:pk>/', views.MyServiceDetailView.as_view(), name='my_service_detail'),
     path('my-availability/',    views.MyAvailabilityView.as_view(),  name='my_availability'),
+    path('create-custom/', views.WorkerCreateServiceView.as_view(), name='worker-create-service')
 ]

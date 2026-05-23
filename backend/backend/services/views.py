@@ -146,19 +146,6 @@ class MyAvailabilityView(APIView):
         return Response(serializer.errors, status=400)
 
 
-class CategoryCreateView(APIView):
-    permission_classes=[IsAuthenticated]
-
-    def post(self,request):
-        if request.user.role!='admin':
-            return Response({'error':'Admin Only'},status=403)
-        serializer=CategorySerializer(data=request.data)
-        if serializer.is_valid():
-            serializer.save()
-            return Response(serializer.data, status=201)
-        return Response(serializer.errors,status=400)
-
-
 class WorkerCreateServiceView(APIView):
     permission_classes = [IsAuthenticated]
 
