@@ -64,6 +64,14 @@ class WorkerListView(generics.ListAPIView):
                 user__worker_services__service_id=service_id,
                 user__worker_services__is_active=True
             )
+        
+        category=self.request.query_params.get('category')
+        if category:
+            queryset=queryset.filter(
+                user__worker_services__service__category_id=category,
+                user__worker_services__is_active=True
+            ).distinct()
+
 
        
         return queryset
