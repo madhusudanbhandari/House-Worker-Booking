@@ -100,7 +100,7 @@ DATABASES = {
         'NAME': config('MYSQLDATABASE'),
         'USER': config('MYSQLUSER'),
         'PASSWORD': config('MYSQLPASSWORD'),
-        # 'HOST': config('MYSQLHOST'),
+        'HOST': config('MYSQLHOST'),
         'PORT': config('MYSQLPORT'),
     }
 }
