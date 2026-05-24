@@ -1,7 +1,7 @@
 import { Routes, Route, Navigate } from "react-router-dom";
 import ProtectedRoute from "./utils/ProtectedRoute";
 
-
+import HomePage from "./pages/auth/HomePage";
 import LoginPage from "./pages/auth/LoginPage";
 import RegisterPage from "./pages/auth/RegisterPage";
 
@@ -26,11 +26,12 @@ export default function App() {
     <Routes>
 
       {/* Public routes */}
+      <Route path="/" element={<HomePage/>}/>
       <Route path="/login" element={<LoginPage />} />
       <Route path="/register" element={<RegisterPage />} />
 
       {/* Default redirect */}
-      <Route path="/" element={<Navigate to="/dashboard" replace />} />
+      <Route path="/" element={<HomePage/>} />
 
       {/* Customer routes */}
       <Route
