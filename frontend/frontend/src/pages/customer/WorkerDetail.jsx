@@ -137,7 +137,7 @@ export default function WorkerDetail() {
     if (!validate()) return;
 
     bookingMutation.mutate({
-      worker_id: parseInt(id),           // from URL param
+      worker_id: worker.user_id,           // from URL param
       service_id: selectedServiceId,
       address: formData.address.trim(),
       area: formData.area.trim(),

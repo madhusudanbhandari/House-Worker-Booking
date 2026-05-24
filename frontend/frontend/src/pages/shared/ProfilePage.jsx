@@ -420,7 +420,7 @@ export default function ProfilePage() {
         <div style={styles.dangerCard}>
           <h2 style={styles.cardTitle}>Account</h2>
           <button onClick={handleLogout} style={styles.logoutDangerBtn}>
-            Sign out of GharChore
+            Sign out of GharKoKaam
           </button>
         </div>
 
