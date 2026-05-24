@@ -27,7 +27,7 @@ SECRET_KEY = 'django-insecure-pq4-+f0&&ui*8t_c+^-y7b%^6o3j2*brf2pd3p(w&7d+$c$s-(
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ["*"]
 
 
 # Application definition
@@ -88,6 +88,8 @@ WSGI_APPLICATION = 'backend.wsgi.application'
 
 # Database
 # https://docs.djangoproject.com/en/6.0/ref/settings/#databases
+
+from decouple import config
 
 DATABASES = {
     'default': {
@@ -153,6 +155,7 @@ CORS_ALLOWED_ORIGINS=[
     'http://localhost:3000',
 ]
 CORS_ALLOW_CREDENTIALS=True
+CORS_ALLOW_ALL_ORIGINS=True
 
 
 MEDIA_URL='media/'
@@ -177,7 +180,8 @@ USE_TZ = True
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/6.0/howto/static-files/
 
-STATIC_URL = 'static/'
+STATIC_URL = '/static/'
+STATIC_ROOT=os.path.join(BASE_DIR,'staticfiles')
 
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
