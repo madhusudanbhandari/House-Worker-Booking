@@ -161,8 +161,7 @@ export default function HomePage() {
           </div>
         </div>
 
-        {/* Hero visual card */}
-        <div style={styles.heroCard}>
+        {/* <div style={styles.heroCard}>
           <div style={styles.heroCardInner}>
             <div style={styles.heroCardHeader}>
               <div style={styles.heroCardAvatar}>HP</div>
@@ -181,7 +180,7 @@ export default function HomePage() {
               <button style={styles.heroCardBtn}>Book now</button>
             </div>
           </div>
-        </div>
+        </div> */}
 
       </section>
 
@@ -367,7 +366,7 @@ export default function HomePage() {
             Trusted home services across Kathmandu valley
           </p>
           <p style={styles.footerCopy}>
-            © 2026 GharChore. Built for Nepal 🇳🇵
+            © 2026 GharKoKaam. Built by Madhusudan Bhandari
           </p>
         </div>
       </footer>
