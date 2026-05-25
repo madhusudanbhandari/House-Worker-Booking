@@ -93,15 +93,18 @@ WSGI_APPLICATION = 'backend.wsgi.application'
 # https://docs.djangoproject.com/en/6.0/ref/settings/#databases
 
 from decouple import config
+import os
+from decouple import config
 
+# fallback to os.environ if .env not present
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.mysql',
-        'NAME': config('MYSQLDATABASE'),
-        'USER': config('MYSQLUSER'),
-        'PASSWORD': config('MYSQLPASSWORD'),
-        'HOST': config('MYSQLHOST'),
-        'PORT': config('MYSQLPORT'),
+        'NAME': config('MYSQLDATABASE', default=os.environ.get('MYSQLDATABASE')),
+        'USER': config('MYSQLUSER', default=os.environ.get('MYSQLUSER')),
+        'PASSWORD': config('MYSQLPASSWORD', default=os.environ.get('MYSQLPASSWORD')),
+        'HOST': config('MYSQLHOST', default=os.environ.get('MYSQLHOST')),
+        'PORT': config('MYSQLPORT', default=os.environ.get('MYSQLPORT'), cast=int),
     }
 }
 # DATABASES = {
