@@ -6,8 +6,6 @@ It exposes the WSGI callable as a module-level variable named ``application``.
 For more information on this file, see
 https://docs.djangoproject.com/en/6.0/howto/deployment/wsgi/
 """
-import pymysql
-pymysql.install_as_MySQLdb()
 
 import os
 

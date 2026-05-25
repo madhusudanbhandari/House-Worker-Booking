@@ -13,9 +13,7 @@ https://docs.djangoproject.com/en/6.0/ref/settings/
 from pathlib import Path
 from datetime import timedelta
 import os
-import pymysql
 
-pymysql.install_as_MySQLdb()
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -100,11 +98,15 @@ from decouple import config
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.mysql',
-        'NAME': config('MYSQLDATABASE', default=os.environ.get('MYSQLDATABASE')),
-        'USER': config('MYSQLUSER', default=os.environ.get('MYSQLUSER')),
-        'PASSWORD': config('MYSQLPASSWORD', default=os.environ.get('MYSQLPASSWORD')),
-        'HOST': config('MYSQLHOST', default=os.environ.get('MYSQLHOST')),
-        'PORT': config('MYSQLPORT', default=os.environ.get('MYSQLPORT'), cast=int),
+        'NAME': config('MYSQLDATABASE'),
+        'USER': config('MYSQLUSER'),
+        'PASSWORD': config('MYSQLPASSWORD'),
+        'HOST': config('MYSQLHOST'),
+        'PORT': config('MYSQLPORT', cast=int),
+        'OPTIONS': {
+            'ssl': {'ssl_disabled': False},
+            'charset': 'utf8mb4',
+        },
     }
 }
 # DATABASES = {
