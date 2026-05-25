@@ -95,14 +95,16 @@ import os
 from decouple import config
 
 # fallback to os.environ if .env not present
+import os
+
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.mysql',
-        'NAME': config('MYSQLDATABASE'),
-        'USER': config('MYSQLUSER'),
-        'PASSWORD': config('MYSQLPASSWORD'),
-        'HOST': config('MYSQLHOST'),
-        'PORT': config('MYSQLPORT', cast=int),
+        'NAME': os.environ.get('MYSQLDATABASE', 'railway'),
+        'USER': os.environ.get('MYSQLUSER', 'root'),
+        'PASSWORD': os.environ.get('MYSQLPASSWORD', ''),
+        'HOST': os.environ.get('MYSQLHOST', 'kodama.proxy.rlwy.net'),
+        'PORT': int(os.environ.get('MYSQLPORT', '26545')),
         'OPTIONS': {
             'ssl': {'ssl_disabled': False},
             'charset': 'utf8mb4',
