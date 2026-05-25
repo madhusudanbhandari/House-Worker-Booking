@@ -26,7 +26,7 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 SECRET_KEY = 'django-insecure-pq4-+f0&&ui*8t_c+^-y7b%^6o3j2*brf2pd3p(w&7d+$c$s-('
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+DEBUG = False
 
 ALLOWED_HOSTS = ["*"]
 
@@ -90,9 +90,6 @@ WSGI_APPLICATION = 'backend.wsgi.application'
 # Database
 # https://docs.djangoproject.com/en/6.0/ref/settings/#databases
 
-from decouple import config
-import os
-from decouple import config
 
 # fallback to os.environ if .env not present
 import os
@@ -173,7 +170,7 @@ CORS_ALLOW_CREDENTIALS=True
 CORS_ALLOW_ALL_ORIGINS=True
 
 
-MEDIA_URL='media/'
+MEDIA_URL='/media/'
 MEDIA_ROOT=os.path.join(BASE_DIR,'media')
 
 
