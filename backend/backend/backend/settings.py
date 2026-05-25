@@ -166,9 +166,10 @@ SIMPLE_JWT = {
 CORS_ALLOWED_ORIGINS=[
     'http://localhost:5173', 
     'http://localhost:3000',
+    'https://house-worker-booking-1.onrender.com',
 ]
 CORS_ALLOW_CREDENTIALS=True
-CORS_ALLOW_ALL_ORIGINS=True
+CORS_ALLOW_ALL_ORIGINS=False
 
 
 MEDIA_URL='/media/'
