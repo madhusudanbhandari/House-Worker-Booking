@@ -1,4 +1,4 @@
-// src/pages/auth/RegisterPage.jsx
+
 import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { useDispatch } from "react-redux";
@@ -6,8 +6,7 @@ import { useMutation } from "@tanstack/react-query";
 import { registerUser } from "../../api/auth";
 import { setCredentials } from "../../store/slices/authSlice";
 
-// Common areas in Kathmandu — shown as a quick-pick list
-// User can also type their own area
+
 const KATHMANDU_AREAS = [
   "Baneshwor, Kathmandu",
   "Thamel, Kathmandu",
@@ -113,6 +112,7 @@ export default function RegisterPage() {
 
     onError: (error) => {
       const data = error.response?.data;
+         console.log(data)
 
       if (data?.detail) {
         setErrors({ general: data.detail });
@@ -125,6 +125,7 @@ export default function RegisterPage() {
         }
         setErrors(mapped);
       } else {
+     
         setErrors({ general: "Registration failed. Please try again." });
       }
     },

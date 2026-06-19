@@ -74,9 +74,9 @@ class CreateBookingView(APIView):
         # ── check worker is verified and available ──
         try:
             profile = worker.worker_profile
-            print("Worker profile found. verified:", profile.is_verified, "available:", profile.is_available)
-            if not profile.is_verified:
-                return Response({'error': 'This worker is not verified yet.'}, status=400)
+            print("Worker profile found. verified:", profile, "available:", profile.is_available)
+            # if not profile.is_verified:
+            #     return Response({'error': 'This worker is not verified yet.'}, status=400)
             if not profile.is_available:
                 return Response({'error': 'This worker is not available.'}, status=400)
         except WorkerProfile.DoesNotExist:

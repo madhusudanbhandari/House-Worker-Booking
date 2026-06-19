@@ -1,9 +1,7 @@
-// src/pages/shared/HomePage.jsx
 import { useNavigate } from "react-router-dom";
 import { useSelector } from "react-redux";
 import { selectIsAuthenticated, selectCurrentUser } from "../../store/slices/authSlice";
 
-// ── Service categories with icons ─────────────────────────────────────────────
 const CATEGORIES = [
   { icon: "🔧", name: "Plumbing", desc: "Pipe repair, tap installation" },
   { icon: "⚡", name: "Electrical", desc: "Wiring, bulb fitting, repairs" },
@@ -15,7 +13,6 @@ const CATEGORIES = [
   { icon: "👨‍🍳", name: "Cooking", desc: "Home chef and meal prep" },
 ];
 
-// ── How it works steps ────────────────────────────────────────────────────────
 const STEPS = [
   {
     number: "01",
@@ -37,7 +34,7 @@ const STEPS = [
   },
 ];
 
-// ── Stats ─────────────────────────────────────────────────────────────────────
+// ── Stats 
 const STATS = [
   { value: "500+", label: "Happy customers" },
   { value: "50+", label: "Verified workers" },
@@ -45,7 +42,7 @@ const STATS = [
   { value: "4.8★", label: "Average rating" },
 ];
 
-// ── Testimonials ──────────────────────────────────────────────────────────────
+// ── Testimonials 
 const TESTIMONIALS = [
   {
     name: "Sita Maharjan",
@@ -106,16 +103,7 @@ export default function HomePage() {
           <span style={styles.navName}>GharKoKaam</span>
         </div>
         <div style={styles.navLinks}>
-          {isAuthenticated ? (
-            <button
-              onClick={() =>
-                navigate(user?.role === "worker" ? "/worker/dashboard" : "/dashboard")
-              }
-              style={styles.navCta}
-            >
-              Go to dashboard
-            </button>
-          ) : (
+        
             <>
               <button
                 onClick={() => navigate("/login")}
@@ -130,9 +118,9 @@ export default function HomePage() {
                 Get started
               </button>
             </>
-          )}
-        </div>
-      </nav>
+          
+                 </div>
+      </nav> 
 
       {/* ── Hero section ── */}
       <section style={styles.hero}>
@@ -149,7 +137,7 @@ export default function HomePage() {
             all from your phone. Fast, reliable, and affordable.
           </p>
           <div style={styles.heroBtns}>
-            <button onClick={handleGetStarted} style={styles.heroCtaBtn}>
+            <button onClick={() => navigate("/register?role=worker")} style={styles.heroCtaBtn}>
               Book a service →
             </button>
             <button
@@ -434,7 +422,7 @@ const styles = {
     cursor: "pointer",
   },
 
-  // Hero
+
   hero: {
     maxWidth: "1100px",
     margin: "0 auto",

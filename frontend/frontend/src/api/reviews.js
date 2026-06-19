@@ -1,4 +1,3 @@
-// src/api/reviews.js
 import api from "./axios";
 
 export const createReview = async ({ booking_id, rating, comment }) => {

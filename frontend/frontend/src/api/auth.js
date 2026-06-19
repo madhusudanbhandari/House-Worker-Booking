@@ -1,4 +1,3 @@
-// src/api/auth.js
 import api from "./axios";
 
 const normalizeAuthResponse = (data) => ({

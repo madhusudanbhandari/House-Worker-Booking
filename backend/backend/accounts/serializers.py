@@ -16,6 +16,8 @@ class RegisterSerializer(serializers.ModelSerializer):
             raise serializers.ValidationError("Phone must contain only digits.")
         if len(value) != 10:
             raise serializers.ValidationError("Phone must be exactly 10 digits.")
+        if User.objects.filter(phone=value).exists():
+            raise serializers.ValidationError("Phone number already in use.")
         return value
     
     def validate_role(self,value):

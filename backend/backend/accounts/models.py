@@ -89,7 +89,6 @@ class WorkerProfile(models.Model):
     avg_rating  = models.DecimalField(max_digits=3, decimal_places=2, default=0.00)
     total_jobs  = models.PositiveIntegerField(default=0)
 
-    citizenship_photo = models.ImageField(upload_to='citizenship/', blank=True, null=True)
 
     def __str__(self):
         return f"Profile of {self.user.full_name}"

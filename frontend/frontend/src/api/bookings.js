@@ -1,4 +1,3 @@
-// src/api/bookings.js
 import api from "./axios";
 
 export const getMyBookings = async () => {

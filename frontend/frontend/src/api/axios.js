@@ -9,7 +9,6 @@ const api = axios.create({
   },
 });
 
-// REQUEST INTERCEPTOR — attach access token to every request
 api.interceptors.request.use(
   (config) => {
     const token = localStorage.getItem("accessToken");
@@ -21,7 +20,6 @@ api.interceptors.request.use(
   (error) => Promise.reject(error)
 );
 
-// RESPONSE INTERCEPTOR — if token expired (401), refresh it automatically
 api.interceptors.response.use(
   (response) => response,
   async (error) => {

@@ -48,7 +48,7 @@ class WorkerListView(generics.ListAPIView):
     def get_queryset(self):
        
         queryset = WorkerProfile.objects.filter(
-            is_verified=True,
+            
             is_available=True,
             user__is_active=True
         ).select_related('user')
@@ -77,7 +77,7 @@ class WorkerListView(generics.ListAPIView):
         return queryset
 
 class WorkerDetailView(generics.RetrieveAPIView):
-        queryset           = WorkerProfile.objects.filter(is_verified=True)
+        queryset           = WorkerProfile.objects.filter()
         serializer_class   = WorkerPublicProfileSerializer
         permission_classes = [AllowAny]
 
